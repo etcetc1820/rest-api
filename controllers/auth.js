@@ -1,22 +1,7 @@
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const User = require("../models/user");
-
-const createToken = (user, timeInMinutes) => {
-  const secret = process.env.SECRET || "secret";
-
-  return jwt.sign(
-    {
-      email: user.email,
-      userId: user._id.toString(),
-    },
-    secret,
-    {
-      expiresIn: 60 * timeInMinutes,
-    }
-  );
-};
+const createToken = require("../utils/createToken");
 
 exports.signUp = async (req, res) => {
   const errors = validationResult(req);
@@ -58,7 +43,13 @@ exports.signUp = async (req, res) => {
     return res.status(422).json({ message: error });
   }
 
-  const token = createToken(user, expirationTime);
+  const token = createToken(
+    {
+      email: user.email,
+      userId: user._id.toString(),
+    },
+    expirationTime
+  );
 
   return res.status(201).json({
     token,
@@ -94,7 +85,13 @@ exports.signIn = async (req, res) => {
     return res.status(500).json({ message: error });
   }
 
-  const token = createToken(user, expirationTime);
+  const token = createToken(
+    {
+      email: user.email,
+      userId: user._id.toString(),
+    },
+    expirationTime
+  );
 
   return res.status(200).json({
     token: `Bearer ${token}`,
