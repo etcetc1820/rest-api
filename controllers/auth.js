@@ -11,7 +11,6 @@ exports.signUp = async (req, res) => {
   }
 
   const { login, password } = req.body;
-  const expirationTime = 10;
   let hashedPw;
   let user;
 
@@ -43,13 +42,10 @@ exports.signUp = async (req, res) => {
     return res.status(422).json({ message: error });
   }
 
-  const token = createToken(
-    {
-      email: user.email,
-      userId: user._id.toString(),
-    },
-    expirationTime
-  );
+  const token = createToken({
+    email: user.email,
+    userId: user._id.toString(),
+  });
 
   return res.status(201).json({
     token,
@@ -58,7 +54,6 @@ exports.signUp = async (req, res) => {
 
 exports.signIn = async (req, res) => {
   const { login, password } = req.body;
-  const expirationTime = 10;
   let user;
 
   try {
@@ -85,13 +80,10 @@ exports.signIn = async (req, res) => {
     return res.status(500).json({ message: error });
   }
 
-  const token = createToken(
-    {
-      email: user.email,
-      userId: user._id.toString(),
-    },
-    expirationTime
-  );
+  const token = createToken({
+    email: user.email,
+    userId: user._id.toString(),
+  });
 
   return res.status(200).json({
     token: `Bearer ${token}`,
