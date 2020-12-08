@@ -3,6 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 
+const authRoute = require("./routes/auth");
+
 const app = express();
 const mongooseUrl = process.env.MONGO_DB_URL;
 const port = process.env.PORT || 8080;
@@ -18,6 +20,8 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use("/auth", authRoute);
 
 mongoose
   .connect(mongooseUrl, {

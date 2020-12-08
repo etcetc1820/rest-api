@@ -13,6 +13,7 @@ const userSchema = new Schema({
   },
   id_type: {
     type: String,
+    required: true,
   },
 });
 

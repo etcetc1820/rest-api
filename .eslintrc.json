@@ -13,6 +13,7 @@
     "rules": {
         "quotes": [2, "double", "avoid-escape"],
         "no-console": "off",
-        "comma-dangle": "off"
+        "comma-dangle": "off",
+        "no-underscore-dangle": "off"
     }
 }
