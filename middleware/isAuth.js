@@ -26,5 +26,6 @@ module.exports = async (req, res, next) => {
   }
 
   req.userId = decodedToken.userId;
+  req.userToken = token;
   next();
 };

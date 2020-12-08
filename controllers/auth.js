@@ -112,3 +112,33 @@ exports.getUserInfo = async (req, res) => {
     id_type: user.id_type,
   });
 };
+
+exports.logout = async (req, res) => {
+  const { all } = req.query;
+  const { userId, userToken } = req;
+  let user;
+
+  try {
+    user = await User.findOne({ _id: userId });
+  } catch (error) {
+    return res.status(500).json({ message: error });
+  }
+
+  if (all === "true") {
+    user.tokens = [];
+  }
+
+  if (all === "false") {
+    let tokens = [...user.tokens];
+    tokens = tokens.filter((token) => token !== userToken);
+    user.tokens = [...tokens];
+  }
+
+  try {
+    await user.save();
+  } catch (error) {
+    return res.status(500).json({ message: error });
+  }
+
+  return res.status(200).json({ message: "Logout successfully!" });
+};

@@ -25,4 +25,6 @@ router.post("/signin", authController.signIn);
 
 router.get("/info", isAuth, authController.getUserInfo);
 
+router.get("/logout", isAuth, authController.logout);
+
 module.exports = router;
