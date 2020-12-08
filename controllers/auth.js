@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const User = require("../models/user");
-const createToken = require("../utils/createToken");
+const { createToken } = require("../utils/createToken");
 
 exports.signUp = async (req, res) => {
   const errors = validationResult(req);
@@ -34,6 +34,7 @@ exports.signUp = async (req, res) => {
     login,
     password: hashedPw,
     id_type: errors.array()[0].param === "email" ? "phone" : "email",
+    tokens: [],
   });
 
   try {
@@ -43,9 +44,12 @@ exports.signUp = async (req, res) => {
   }
 
   const token = createToken({
-    email: user.email,
+    login: user.login,
     userId: user._id.toString(),
   });
+
+  user.tokens.push(token);
+  await user.save();
 
   return res.status(201).json({
     token,
@@ -81,9 +85,12 @@ exports.signIn = async (req, res) => {
   }
 
   const token = createToken({
-    email: user.email,
+    login: user.login,
     userId: user._id.toString(),
   });
+
+  user.tokens.push(token);
+  await user.save();
 
   return res.status(200).json({
     token: `Bearer ${token}`,
