@@ -11,7 +11,7 @@ exports.signUp = async (req, res) => {
   }
 
   const { login, password, type } = req.body;
-  let hashedPw;
+  const hashedPw = await bcrypt.hash(password, 12);
   let user;
 
   try {
@@ -22,12 +22,6 @@ exports.signUp = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
-  }
-
-  try {
-    hashedPw = await bcrypt.hash(password, 12);
-  } catch {
-    return res.status(500).json({ message: "Can't hash password" });
   }
 
   const userDoc = new User({
@@ -72,16 +66,12 @@ exports.signIn = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 
-  try {
-    const isEqual = await bcrypt.compare(password, user.password);
+  const isEqual = await bcrypt.compare(password, user.password);
 
-    if (!isEqual) {
-      return res.status(401).json({
-        message: "Please try again.",
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+  if (!isEqual) {
+    return res.status(401).json({
+      message: "Please try again.",
+    });
   }
 
   const token = createToken({
