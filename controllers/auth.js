@@ -6,11 +6,11 @@ const { createToken } = require("../utils/createToken");
 exports.signUp = async (req, res) => {
   const errors = validationResult(req);
 
-  if (errors.array().length > 1) {
+  if (!errors.isEmpty()) {
     return res.status(422).json({ message: errors.array() });
   }
 
-  const { login, password } = req.body;
+  const { login, password, type } = req.body;
   let hashedPw;
   let user;
 
@@ -21,7 +21,7 @@ exports.signUp = async (req, res) => {
       return res.status(422).json({ message: "User already exist!" });
     }
   } catch (error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 
   try {
@@ -33,14 +33,14 @@ exports.signUp = async (req, res) => {
   const userDoc = new User({
     login,
     password: hashedPw,
-    id_type: errors.array()[0].param === "email" ? "phone" : "email",
+    id_type: type,
     tokens: [],
   });
 
   try {
     user = await userDoc.save();
   } catch (error) {
-    return res.status(422).json({ message: error });
+    return res.status(422).json({ message: error.message });
   }
 
   const token = createToken({
@@ -69,7 +69,7 @@ exports.signIn = async (req, res) => {
       });
     }
   } catch (error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 
   try {
@@ -77,11 +77,11 @@ exports.signIn = async (req, res) => {
 
     if (!isEqual) {
       return res.status(401).json({
-        message: "Wrong password.",
+        message: "Please try again.",
       });
     }
   } catch (error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 
   const token = createToken({
@@ -104,7 +104,7 @@ exports.getUserInfo = async (req, res) => {
   try {
     user = await User.findOne({ _id: userId });
   } catch (error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 
   return res.json({
@@ -121,7 +121,7 @@ exports.logout = async (req, res) => {
   try {
     user = await User.findOne({ _id: userId });
   } catch (error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 
   if (all === "true") {
@@ -137,7 +137,7 @@ exports.logout = async (req, res) => {
   try {
     await user.save();
   } catch (error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 
   return res.status(200).json({ message: "Logout successfully!" });
