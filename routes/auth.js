@@ -13,4 +13,6 @@ router.get("/info", isAuth, authController.getUserInfo);
 
 router.get("/logout", isAuth, authController.logout);
 
+router.get("/latency", isAuth, authController.latency);
+
 module.exports = router;

@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
+const axios = require("axios");
 const User = require("../models/user");
 const { createToken } = require("../utils/createToken");
 
@@ -141,4 +142,15 @@ exports.logout = async (req, res) => {
   }
 
   return res.status(200).json({ message: "Logout successfully!" });
+};
+
+exports.latency = async (req, res) => {
+  const beginAt = Date.now();
+
+  const responseLatency = await axios
+    .get("https://google.com")
+    .then(() => Date.now() - beginAt)
+    .catch((error) => res.status(500).json({ message: error.message }));
+
+  res.status(200).json({ latency: `${responseLatency}ms` });
 };
