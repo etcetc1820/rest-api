@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
-const User = require("../models/user");
 const { createToken } = require("../utils/createToken");
+const { findUser, createUser } = require("../services/user");
 
 exports.signUp = async (req, res) => {
   const errors = validationResult(req);
@@ -15,7 +15,7 @@ exports.signUp = async (req, res) => {
   let user;
 
   try {
-    const checkResult = await User.findOne({ login });
+    const checkResult = await findUser({ login });
 
     if (checkResult) {
       return res.status(422).json({ message: "User already exist!" });
@@ -24,15 +24,13 @@ exports.signUp = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 
-  const userDoc = new User({
-    login,
-    password: hashedPw,
-    id_type: type,
-    tokens: [],
-  });
-
   try {
-    user = await userDoc.save();
+    user = await createUser({
+      login,
+      password: hashedPw,
+      id_type: type,
+      tokens: [],
+    });
   } catch (error) {
     return res.status(422).json({ message: error.message });
   }
@@ -55,7 +53,7 @@ exports.signIn = async (req, res) => {
   let user;
 
   try {
-    user = await User.findOne({ login });
+    user = await findUser({ login });
 
     if (!user) {
       return res.status(401).json({
@@ -92,7 +90,7 @@ exports.getUserInfo = async (req, res) => {
   let user;
 
   try {
-    user = await User.findOne({ _id: userId });
+    user = await findUser({ _id: userId });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -109,7 +107,7 @@ exports.logout = async (req, res) => {
   let user;
 
   try {
-    user = await User.findOne({ _id: userId });
+    user = await findUser({ _id: userId });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
